@@ -157,6 +157,20 @@ class CloudSyncRepositoryImpl(
             tombs[key] = maxOf(tombs[key] ?: 0L, t.at)
         }
 
+        val phoneCalendar = PenguinCalendar(context)
+        val localCal = try { phoneCalendar.read(now) } catch (_: Exception) { null }
+        localCal?.deletedRows?.forEach { row ->
+            row.syncId?.takeIf { it.isNotBlank() }?.let {
+                val k = key(SyncTypes.EVENTS, it)
+                tombs[k] = maxOf(tombs[k] ?: 0L, now)
+            }
+        }
+        val remoteEvents = remote.events.filter { it.id.isNotBlank() && it.start > 0 }
+        val mergedEvents = if (localCal == null) remoteEvents else merge(
+            SyncTypes.EVENTS, localCal.events, remoteEvents, { it.id }, { it.updatedDate },
+            base[SyncTypes.EVENTS].orEmpty(), tombs, now
+        )
+
         val mergedFolders = if (localFolders == null) remote.noteFolders else merge(
             SyncTypes.NOTE_FOLDERS, localFolders, remote.noteFolders, { it.id }, { null },
             base[SyncTypes.NOTE_FOLDERS].orEmpty(), tombs, now
@@ -227,6 +241,7 @@ class CloudSyncRepositoryImpl(
             deleteTaskUseCase((rawById[entity.id] ?: entity).toTask())
         }
         pulled += taskChanges
+        if (localCal != null) pulled += phoneCalendar.apply(localCal, mergedEvents)
 
         // ---- upload ----
         val tombList = tombs
@@ -243,6 +258,7 @@ class CloudSyncRepositoryImpl(
             tasks = mergedTasks,
             diary = mergedDiary,
             bookmarks = mergedBookmarks,
+            events = mergedEvents,
             deleted = tombList
         )
         val pushed = countChanges(remote, newFile)
@@ -264,7 +280,10 @@ class CloudSyncRepositoryImpl(
             newIds[SyncTypes.NOTES] = mergedNotes.map { it.id }
             newIds[SyncTypes.NOTE_FOLDERS] = mergedFolders.map { it.id }
         }
+        if (localCal != null) newIds[SyncTypes.EVENTS] = mergedEvents.map { it.id }
+        else state.ids[SyncTypes.EVENTS]?.let { newIds[SyncTypes.EVENTS] = it }
         writeState(SyncState(account = account, ids = newIds))
+        try { EventReminders.reschedule(context) } catch (_: Exception) { }
 
         return CloudSyncSummary(
             pulledChanges = pulled,
@@ -338,6 +357,7 @@ class CloudSyncRepositoryImpl(
         tasks = file.tasks.map { it.copy(alarmId = null) }.sortedBy { it.id },
         diary = file.diary.sortedBy { it.id },
         bookmarks = file.bookmarks.sortedBy { it.id },
+        events = file.events.sortedBy { it.id },
         deleted = file.deleted.sortedWith(compareBy({ it.type }, { it.id }))
     )
 
@@ -351,7 +371,8 @@ class CloudSyncRepositoryImpl(
                 count(old.noteFolders, new.noteFolders) { it.id } +
                 count(old.tasks.map { it.copy(alarmId = null) }, new.tasks) { it.id } +
                 count(old.diary, new.diary) { it.id } +
-                count(old.bookmarks, new.bookmarks) { it.id }
+                count(old.bookmarks, new.bookmarks) { it.id } +
+                count(old.events, new.events) { it.id }
     }
 
     override fun setAutoSync(enabled: Boolean) {

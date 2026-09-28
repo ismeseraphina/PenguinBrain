@@ -44,6 +44,9 @@ dependencies {
     implementation(project(":settings:domain"))
     implementation(project(":tasks:domain"))
     implementation(project(":diary:domain"))
+    implementation(project(":core:ui"))
+    implementation(project(":core:util"))
+    implementation(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

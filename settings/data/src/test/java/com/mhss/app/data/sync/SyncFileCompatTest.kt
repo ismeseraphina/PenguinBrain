@@ -27,8 +27,22 @@ class SyncFileCompatTest {
         assertTrue(file.notes.any { it.title == "筆記" && it.pinned })
         assertTrue(file.diary.isNotEmpty())
         assertTrue(file.deleted.isNotEmpty())
+        assertEquals(2, file.events.size)
+        val lecture = file.events.first { it.rrule.isNotBlank() }
+        assertEquals("FREQ=WEEKLY;BYDAY=MO", lecture.rrule)
+        assertEquals(listOf(10), lecture.reminders)
+        assertEquals(3_600_000L, lecture.end - lecture.start)
+        assertTrue(file.events.any { it.allDay && it.title == "Holiday moved" })
         // round trip
         val again = json.decodeFromString(SyncFile.serializer(), json.encodeToString(SyncFile.serializer(), file))
         assertEquals(file, again)
+    }
+
+    @Test
+    fun parsesDurations() {
+        assertEquals(3_600_000L, PenguinCalendar.parseDuration("P3600S"))
+        assertEquals(5_400_000L, PenguinCalendar.parseDuration("PT1H30M"))
+        assertEquals(86_400_000L, PenguinCalendar.parseDuration("P1D"))
+        assertEquals(0L, PenguinCalendar.parseDuration(null))
     }
 }

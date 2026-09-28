@@ -23,12 +23,31 @@ data class SyncFile(
     val tasks: List<TaskEntity> = emptyList(),
     val diary: List<DiaryEntryEntity> = emptyList(),
     val bookmarks: List<BookmarkEntity> = emptyList(),
+    val events: List<SyncEvent> = emptyList(),
     val deleted: List<Tombstone> = emptyList()
 ) {
     companion object {
         const val FORMAT = "penguinbrain-sync"
     }
 }
+
+/**
+ * Event of the "Penguin Brain" calendar. start/end are epoch millis, all-day events use UTC midnight
+ * (same as Android's calendar provider). rrule is an RFC 5545 rule without the "RRULE:" prefix.
+ */
+@Serializable
+data class SyncEvent(
+    val title: String = "",
+    val description: String = "",
+    val location: String = "",
+    val start: Long = 0L,
+    val end: Long = 0L,
+    val allDay: Boolean = false,
+    val rrule: String = "",
+    val reminders: List<Int> = emptyList(),
+    val updatedDate: Long = 0L,
+    val id: String = ""
+)
 
 @Serializable
 data class Tombstone(
@@ -50,4 +69,5 @@ internal object SyncTypes {
     const val TASKS = "tasks"
     const val DIARY = "diary"
     const val BOOKMARKS = "bookmarks"
+    const val EVENTS = "events"
 }

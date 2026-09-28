@@ -128,7 +128,8 @@ fun CalendarEventDetailsScreen(
             }
         } else {
             if (state.calendarsList.isNotEmpty()) {
-                calendar = state.calendarsList.first()
+                calendar = state.calendarsList.firstOrNull { it.name == "Penguin Brain" }
+                    ?: state.calendarsList.first()
             }
         }
     }
