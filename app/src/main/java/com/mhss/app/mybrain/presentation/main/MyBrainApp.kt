@@ -50,6 +50,7 @@ import com.mhss.app.presentation.TaskDetailScreen
 import com.mhss.app.presentation.TasksScreen
 import com.mhss.app.presentation.TasksSearchScreen
 import com.mhss.app.presentation.backup.ImportExportScreen
+import com.mhss.app.presentation.sync.CloudSyncScreen
 import com.mhss.app.presentation.integrations.IntegrationsScreen
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
@@ -312,6 +313,12 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     ImportExportScreen()
+                }
+                composable<Screen.CloudSyncScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    CloudSyncScreen()
                 }
                 composable<Screen.IntegrationsScreen>(
                     enterTransition = { slideInTransition() },

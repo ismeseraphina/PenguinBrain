@@ -252,6 +252,16 @@ fun SettingsScreen(
             }
             item {
                 SettingsBasicLinkItem(
+                    title = R.string.cloud_sync,
+                    subtitle = stringResource(R.string.cloud_sync_subtitle),
+                    icon = R.drawable.ic_refresh,
+                    onClick = {
+                        navController.navigate(Screen.CloudSyncScreen)
+                    }
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
                     title = R.string.export_import,
                     icon = R.drawable.ic_import_export,
                     onClick = {
@@ -279,8 +289,45 @@ fun SettingsScreen(
             }
             item {
                 SettingsBasicLinkItem(
-                    title = R.string.project_on_github,
+                    title = R.string.penguin_brain_website,
+                    icon = R.drawable.ic_open_link,
+                    link = Constants.PENGUIN_BRAIN_WEBSITE_LINK
+                )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.modified_by),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .padding(vertical = 16.dp, horizontal = 12.dp)
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
+                    title = R.string.modified_by_github,
                     icon = R.drawable.ic_github,
+                    link = Constants.SERAPHINA_GITHUB_LINK
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
+                    title = R.string.modified_by_old_github,
+                    icon = R.drawable.ic_github,
+                    link = Constants.SERAPHINA_OLD_GITHUB_LINK
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
+                    title = R.string.feedback,
+                    subtitle = "ismeseraphina.com",
+                    icon = R.drawable.ic_feature_issue,
+                    link = Constants.FEEDBACK_LINK
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
+                    title = R.string.based_on_mybrain,
+                    icon = R.drawable.ic_code,
                     link = Constants.PROJECT_GITHUB_LINK
                 )
             }

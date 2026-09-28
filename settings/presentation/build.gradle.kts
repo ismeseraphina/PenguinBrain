@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":notes:data"))
 
     implementation(project(":core:ui"))
+    implementation(project(":core:util"))
     implementation(project(":core:preferences"))
 
     implementation(platform(libs.compose.bom))

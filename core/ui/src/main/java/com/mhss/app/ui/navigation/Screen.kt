@@ -84,5 +84,8 @@ sealed class Screen {
     data object IntegrationsScreen : Screen()
 
     @Serializable
+    data object CloudSyncScreen : Screen()
+
+    @Serializable
     data object AssistantScreen : Screen()
 }

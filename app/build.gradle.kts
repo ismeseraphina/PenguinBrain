@@ -90,6 +90,7 @@ dependencies {
     implementation(project(":calendar:data"))
     implementation(project(":ai:data"))
     implementation(project(":settings:data"))
+    implementation(project(":settings:domain"))
 
     implementation(project(":tasks:domain"))
     implementation(project(":calendar:domain"))

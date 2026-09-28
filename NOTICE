@@ -1,0 +1,13 @@
+Penguin Brain
+Copyright (C) 2026 Seraphina (https://github.com/ismeseraphina, https://github.com/Cryjai)
+
+This program is a modified version of MyBrain
+Copyright (C) Mohamed Shaaban (mhss1) - https://github.com/mhss1/MyBrain
+
+Licensed under the GNU General Public License v3.0. See LICENSE.
+
+Changes by Seraphina: penguin theme and icons, dashboard settings shortcut,
+GitHub-based sign in & sync with the Penguin Brain website, credits screen,
+and backported upstream bug fixes.
+
+Feedback: https://ismeseraphina.com

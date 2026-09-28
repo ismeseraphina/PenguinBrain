@@ -44,6 +44,14 @@ object PrefsConstants {
     const val EXTERNAL_NOTES_FOLDER_URI = "markdown_note_folder_uri"
     const val EXTERNAL_NOTES_FOLDER_PATH = "markdown_note_folder_path"
 
+    const val CLOUD_SYNC_TOKEN = "cloud_sync_token"
+    const val CLOUD_SYNC_OWNER = "cloud_sync_owner"
+    const val CLOUD_SYNC_REPO = "cloud_sync_repo"
+    const val CLOUD_SYNC_LOGIN = "cloud_sync_login"
+    const val CLOUD_SYNC_AUTO = "cloud_sync_auto"
+    const val CLOUD_SYNC_LAST_TIME = "cloud_sync_last_time"
+    const val CLOUD_SYNC_LAST_ERROR = "cloud_sync_last_error"
+
     const val AUTO_BACKUP_ENABLED = "auto_backup_enabled"
     const val AUTO_BACKUP_FOLDER_URI = "auto_backup_folder_uri"
     const val AUTO_BACKUP_FREQUENCY = "auto_backup_frequency"

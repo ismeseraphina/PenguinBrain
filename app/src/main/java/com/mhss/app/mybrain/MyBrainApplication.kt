@@ -24,6 +24,7 @@ import com.mhss.app.data.noteRoomModule
 import com.mhss.app.data.tasksDataModule
 import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
+import com.mhss.app.domain.repository.CloudSyncRepository
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.preferences.PrefsConstants
@@ -57,6 +58,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Pre
 class MyBrainApplication : Application() {
 
     private val getPreference: GetPreferenceUseCase by inject()
+    private val cloudSyncRepository: CloudSyncRepository by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -90,6 +92,8 @@ class MyBrainApplication : Application() {
             workManagerFactory()
         }
         loadNotesModule()
+        // Penguin Brain: sync with the website on app start (worker exits if auto sync is off)
+        runCatching { cloudSyncRepository.requestBackgroundSync() }
 
         createRemindersNotificationChannel()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
