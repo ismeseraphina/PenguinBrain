@@ -116,6 +116,8 @@ fun CloudSyncScreen(
                 SyncCard {
                     Text(stringResource(R.string.cloud_sync_intro), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.cloud_sync_account_hint), style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.cloud_sync_step_repo), style = MaterialTheme.typography.bodyMedium)
                     Text(stringResource(R.string.cloud_sync_step_token), style = MaterialTheme.typography.bodyMedium)
                     Text(stringResource(R.string.cloud_sync_step_sign_in), style = MaterialTheme.typography.bodyMedium)

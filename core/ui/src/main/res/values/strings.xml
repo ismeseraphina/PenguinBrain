@@ -277,7 +277,8 @@
     <!-- Penguin Brain: cloud sync + credits -->
     <string name="cloud_sync">Sign in &amp; Sync</string>
     <string name="cloud_sync_subtitle">Sync with the Penguin Brain website</string>
-    <string name="cloud_sync_intro">Sign in with a GitHub token to sync your notes, tasks, diary and bookmarks between this app and the Penguin Brain website. Your data is saved as one JSON file in a private GitHub repository that only you own. No other server is used.</string>
+    <string name="cloud_sync_intro">Sync your notes, tasks, diary and bookmarks with the Penguin Brain website. Two ways: a Penguin Brain account (email and password), or a GitHub token with a private repository you own.</string>
+    <string name="cloud_sync_account_hint">Penguin Brain account: sign in on the website, open Settings → Sign in &amp; Sync → Connect the Android app, then paste the token, the server address as Repository owner and data as Repository name. GitHub: follow the steps below.</string>
     <string name="cloud_sync_step_repo">1. Create a private repository (for example PenguinBrainData).</string>
     <string name="cloud_sync_step_token">2. Create a fine-grained token with access to only that repository and Contents: Read and write.</string>
     <string name="cloud_sync_step_sign_in">3. Paste the token below and sign in. Use the same token and repository on the website.</string>

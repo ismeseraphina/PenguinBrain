@@ -32,15 +32,23 @@ internal class GitHubSyncApi(
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    /**
+     * owner can also be a Penguin Brain server URL (email & password account on the website),
+     * which speaks the same subset of the GitHub Contents API.
+     */
+    private val isServer = owner.startsWith("https://", true) || owner.startsWith("http://", true)
+    private val apiBase = if (isServer) owner.trimEnd('/') else "https://api.github.com"
+    private val repoBase = if (isServer) "$apiBase/repos/me/${enc(repo)}" else "$apiBase/repos/${enc(owner)}/${enc(repo)}"
+
     fun getLogin(): String {
-        val (code, body) = request("GET", "https://api.github.com/user")
+        val (code, body) = request("GET", "$apiBase/user")
         if (code == 401) throw CloudSyncException("Invalid GitHub token")
         if (code !in 200..299) throw CloudSyncException("GitHub error $code")
         return json.parseToJsonElement(body).jsonObject["login"]?.jsonPrimitive?.content ?: ""
     }
 
     fun checkRepo() {
-        val (code, _) = request("GET", "https://api.github.com/repos/${enc(owner)}/${enc(repo)}")
+        val (code, _) = request("GET", "$repoBase")
         when (code) {
             in 200..299 -> Unit
             401 -> throw CloudSyncException("Invalid GitHub token")
@@ -61,7 +69,7 @@ internal class GitHubSyncApi(
             // files > 1MB: content is not inlined, use the git blobs api instead
             val (blobCode, blobBody) = request(
                 "GET",
-                "https://api.github.com/repos/${enc(owner)}/${enc(repo)}/git/blobs/$sha"
+                "$repoBase/git/blobs/$sha"
             )
             if (blobCode !in 200..299) throw CloudSyncException("Could not read sync file (GitHub error $blobCode)")
             base64 = json.parseToJsonElement(blobBody).jsonObject.string("content")
@@ -80,6 +88,7 @@ internal class GitHubSyncApi(
         when (code) {
             in 200..299 -> Unit
             409, 422 -> throw ConflictException()
+            413 -> throw CloudSyncException("Sync data is too large for the server")
             401 -> throw CloudSyncException("Invalid GitHub token")
             403, 404 -> throw CloudSyncException("Token has no write access to $owner/$repo (Contents: Read and write)")
             else -> throw CloudSyncException("Could not upload sync file (GitHub error $code)")
@@ -87,7 +96,7 @@ internal class GitHubSyncApi(
     }
 
     private fun contentsUrl() =
-        "https://api.github.com/repos/${enc(owner)}/${enc(repo)}/contents/" +
+        "$repoBase/contents/" +
                 path.split('/').joinToString("/") { enc(it) }
 
     private fun request(method: String, url: String, body: String? = null): Pair<Int, String> {
