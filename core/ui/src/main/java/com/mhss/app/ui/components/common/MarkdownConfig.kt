@@ -19,6 +19,7 @@ fun String.withHardLineBreaks(): String = buildString(length + length / 2) {
     var inFencedBlock = false
     var pendingBlanks = 0
     var isFirst = true
+    var previousLineWasTable = false
     var i = 0
 
     fun flushBlanks() {
@@ -30,6 +31,7 @@ fun String.withHardLineBreaks(): String = buildString(length + length / 2) {
     while (i <= content.length) {
         val eol = content.indexOf('\n', i).let { if (it == -1) content.length else it }
         val isFence = content.isFenceAt(i, eol)
+        val isTableLine = !inFencedBlock && content.isTableLineAt(i, eol)
 
         if (inFencedBlock) {
             append('\n')
@@ -37,14 +39,20 @@ fun String.withHardLineBreaks(): String = buildString(length + length / 2) {
             if (isFence) inFencedBlock = false
         } else if (i == eol) {
             pendingBlanks++
+            previousLineWasTable = false
         } else {
             if (!isFirst) {
                 appendLine()
-                if (pendingBlanks > 0) flushBlanks() else append('\n')
+                if (pendingBlanks > 0) {
+                    flushBlanks()
+                } else if (!previousLineWasTable || !isTableLine) {
+                    append('\n')
+                }
             }
             isFirst = false
             append(content, i, eol)
             if (isFence) inFencedBlock = true
+            previousLineWasTable = isTableLine
         }
 
         i = eol + 1
@@ -58,6 +66,21 @@ private fun String.isFenceAt(start: Int, end: Int): Boolean {
     var i = start
     while (i < end && this[i] == ' ') i++
     return i + 3 <= end && this[i] == '`' && this[i + 1] == '`' && this[i + 2] == '`'
+}
+
+private fun String.isTableLineAt(start: Int, end: Int): Boolean {
+    var hasPipe = false
+    var hasNonSpace = false
+    var i = start
+    while (i < end) {
+        when (this[i]) {
+            '|' -> hasPipe = true
+            ' ', '\t' -> Unit
+            else -> hasNonSpace = true
+        }
+        i++
+    }
+    return hasPipe && hasNonSpace
 }
 
 @Composable
