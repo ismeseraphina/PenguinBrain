@@ -25,7 +25,7 @@ object Constants {
     const val SERAPHINA_GITHUB_LINK = "https://github.com/ismeseraphina"
     const val SERAPHINA_OLD_GITHUB_LINK = "https://github.com/Cryjai"
     const val FEEDBACK_LINK = "https://ismeseraphina.com"
-    const val PENGUIN_BRAIN_WEBSITE_LINK = "https://ismeseraphina.github.io/PenguinBrainWebsite/"
+    const val PENGUIN_BRAIN_WEBSITE_LINK = "https://penguinbrain.acry.workers.dev/"
     const val CLOUD_SYNC_CREATE_REPO_LINK = "https://github.com/new?name=PenguinBrainData&visibility=private&description=Penguin+Brain+sync+data"
     const val CLOUD_SYNC_CREATE_TOKEN_LINK = "https://github.com/settings/personal-access-tokens/new?name=Penguin+Brain+Sync&description=Sync+Penguin+Brain+app+and+website&contents=write"
     const val PROJECT_GITHUB_LINK = "https://github.com/mhss1/MyBrain"

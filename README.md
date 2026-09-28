@@ -18,7 +18,7 @@ Every push to `master` builds a debug APK with GitHub Actions:
 - or **Actions** tab → latest run → artifact `PenguinBrain-debug-apk`
 
 ## Web version
-[Penguin Brain Website](https://ismeseraphina.github.io/PenguinBrainWebsite/) ([source](https://github.com/ismeseraphina/PenguinBrainWebsite)) runs in the browser and syncs with this app.
+[Penguin Brain Website](https://penguinbrain.acry.workers.dev/) ([source](https://github.com/ismeseraphina/PenguinBrainWebsite)) runs in the browser and syncs with this app.
 
 ## What Seraphina changed
 - Penguin icons, penguin space cards and a pastel pink theme.
