@@ -71,7 +71,7 @@ fun SpacesScreen(
                 SpaceCard(
                     modifier = Modifier,
                     title = stringResource(R.string.assistant),
-                    image = R.drawable.ai_chat_img,
+                    image = R.drawable.penguin_assistant,
                     onClick = {
                         navController.navigate(Screen.AssistantScreen)
                     },
@@ -91,11 +91,11 @@ fun SpacesScreen(
 
 
 private val spaces = listOf(
-    Space(R.string.notes, R.drawable.notes_img, Blue, Screen.NotesScreen),
-    Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
-    Space(R.string.diary, R.drawable.diary_img, Green, Screen.DiaryScreen),
-    Space(R.string.bookmarks, R.drawable.bookmarks_img, Orange, Screen.BookmarksScreen),
-    Space(R.string.calendar, R.drawable.calendar_img, Purple, Screen.CalendarScreen),
+    Space(R.string.notes, R.drawable.penguin_notes, Blue, Screen.NotesScreen),
+    Space(R.string.tasks, R.drawable.penguin_tasks, Red, Screen.TasksScreen()),
+    Space(R.string.diary, R.drawable.penguin_diary, Green, Screen.DiaryScreen),
+    Space(R.string.bookmarks, R.drawable.penguin_bookmarks, Orange, Screen.BookmarksScreen),
+    Space(R.string.calendar, R.drawable.penguin_calendar, Purple, Screen.CalendarScreen),
 )
 
 private data class Space(

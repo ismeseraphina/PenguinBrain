@@ -28,7 +28,10 @@ fun NavigationGraph(
             enterTransition = { fadeIn(tween(0)) },
             exitTransition = { fadeOut(tween(0)) },
         ) {
-            DashboardScreen(mainNavController)
+            DashboardScreen(
+                navController = mainNavController,
+                onSettingsClick = { navController.navigate(Screen.SettingsScreen) }
+            )
         }
         composable<Screen.SpacesScreen>(
             enterTransition = { fadeIn(tween(0)) },

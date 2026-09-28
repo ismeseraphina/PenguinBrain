@@ -271,10 +271,10 @@ fun SettingsScreen(
 
             item {
                 SettingsBasicLinkItem(
-                    title = R.string.app_version,
+                    title = R.string.penguin_brain_github,
                     icon = R.drawable.ic_code,
                     subtitle = context.getPackageInfo().versionName ?: BuildConfig.VERSION_NAME,
-                    link = Constants.GITHUB_RELEASES_LINK
+                    link = Constants.PENGUIN_BRAIN_GITHUB_LINK
                 )
             }
             item {

@@ -2,11 +2,12 @@ package com.mhss.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryColor = Color(0xFF2DD1E7)
+// Penguin Purse-inspired soft pastel pink palette
+val PrimaryColor = Color(0xFFF48FB1)
 val OnPrimary = Color.White
-val SecondaryColor = Color(0xFF5F12CA)
-val TertiaryColor = SecondaryColor
-val DarkGray = Color(0xFF131313)
+val SecondaryColor = Color(0xFFF7A8C4)
+val TertiaryColor = Color(0xFFFBC4D6)
+val DarkGray = Color(0xFF2E2230)
 
 //val SurfaceGray = Color(0xFF121212)
 val Red = Color(0xFFD53A2F)
@@ -20,8 +21,8 @@ val LightGray = Color(0xFFECECEC)
 val LightPurple = Color(0xFF743AD6)
 val DarkOrange = Color(0xFFE84200)
 
-val LightCardColor = Color(0xffeff1f3)
-val LightBackgroundColor = Color(0xfffdfdfd)
+val LightCardColor = Color(0xFFFDEAF1)
+val LightBackgroundColor = Color(0xFFFFF5F9)
 
 val SuccessColor = Color(0xFF1E9651)
 

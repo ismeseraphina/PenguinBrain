@@ -37,7 +37,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             isDebuggable = true
-            resValue("string", "app_name", "MyBrain Debug")
+            resValue("string", "app_name", "Penguin Brain")
         }
     }
     compileOptions {

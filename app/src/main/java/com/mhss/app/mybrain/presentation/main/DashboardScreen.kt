@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -25,11 +29,23 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DashboardScreen(
     navController: NavHostController,
+    onSettingsClick: () -> Unit = {},
     viewModel: MainViewModel = koinViewModel()
 ) {
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(R.string.dashboard))
+            MyBrainAppBar(
+                stringResource(R.string.dashboard),
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_settings),
+                            contentDescription = stringResource(R.string.settings),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
+            )
         }
     ) {paddingValues ->
         LaunchedEffect(true) { viewModel.onDashboardEvent(DashboardEvent.InitAll) }
