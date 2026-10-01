@@ -259,6 +259,7 @@ class CloudSyncRepositoryImpl(
             diary = mergedDiary,
             bookmarks = mergedBookmarks,
             events = mergedEvents,
+            categories = remote.categories,
             deleted = tombList
         )
         val pushed = countChanges(remote, newFile)
@@ -284,6 +285,7 @@ class CloudSyncRepositoryImpl(
         else state.ids[SyncTypes.EVENTS]?.let { newIds[SyncTypes.EVENTS] = it }
         writeState(SyncState(account = account, ids = newIds))
         try { EventReminders.reschedule(context) } catch (_: Exception) { }
+        try { com.mhss.app.data.clock.PenguinClock.scheduleNotifications(context, database) } catch (_: Exception) { }
 
         return CloudSyncSummary(
             pulledChanges = pulled,
@@ -358,6 +360,7 @@ class CloudSyncRepositoryImpl(
         diary = file.diary.sortedBy { it.id },
         bookmarks = file.bookmarks.sortedBy { it.id },
         events = file.events.sortedBy { it.id },
+        categories = file.categories.sortedBy { it.id },
         deleted = file.deleted.sortedWith(compareBy({ it.type }, { it.id }))
     )
 

@@ -50,6 +50,7 @@ fun DashboardScreen(
     ) {paddingValues ->
         LaunchedEffect(true) { viewModel.onDashboardEvent(DashboardEvent.InitAll) }
         LazyColumn(contentPadding = paddingValues) {
+            item { ClockDashboardWidget(Modifier.fillMaxWidth()) }
             item {
                 CalendarDashboardWidget(
                     modifier = Modifier

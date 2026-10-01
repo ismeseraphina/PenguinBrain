@@ -102,7 +102,12 @@ class EventReminderReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             val result = goAsync()
             Thread {
-                try { EventReminders.reschedule(context) } catch (_: Exception) { } finally { result.finish() }
+                try { EventReminders.reschedule(context) } catch (_: Exception) { }
+                try {
+                    val db = org.koin.java.KoinJavaComponent.get<com.mhss.app.database.MyBrainDatabase>(com.mhss.app.database.MyBrainDatabase::class.java)
+                    kotlinx.coroutines.runBlocking { com.mhss.app.data.clock.PenguinClock.scheduleNotifications(context, db) }
+                } catch (_: Exception) { }
+                result.finish()
             }.start()
             return
         }

@@ -31,6 +31,9 @@ class SyncFileCompatTest {
         val lecture = file.events.first { it.rrule.isNotBlank() }
         assertEquals("FREQ=WEEKLY;BYDAY=MO", lecture.rrule)
         assertEquals(listOf(10), lecture.reminders)
+        assertEquals("#6f4cad", lecture.color)
+        assertEquals("cat-class", lecture.category)
+        assertEquals(5, file.categories.size)
         assertEquals(3_600_000L, lecture.end - lecture.start)
         assertTrue(file.events.any { it.allDay && it.title == "Holiday moved" })
         // round trip

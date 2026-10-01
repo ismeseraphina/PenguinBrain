@@ -24,6 +24,7 @@ data class SyncFile(
     val diary: List<DiaryEntryEntity> = emptyList(),
     val bookmarks: List<BookmarkEntity> = emptyList(),
     val events: List<SyncEvent> = emptyList(),
+    val categories: List<SyncCategory> = emptyList(),
     val deleted: List<Tombstone> = emptyList()
 ) {
     companion object {
@@ -45,6 +46,17 @@ data class SyncEvent(
     val allDay: Boolean = false,
     val rrule: String = "",
     val reminders: List<Int> = emptyList(),
+    val category: String = "",
+    val color: String = "",
+    val updatedDate: Long = 0L,
+    val id: String = ""
+)
+
+/** Calendar category (edited on the website, kept as-is by the app). */
+@Serializable
+data class SyncCategory(
+    val name: String = "",
+    val color: String = "",
     val updatedDate: Long = 0L,
     val id: String = ""
 )

@@ -74,7 +74,8 @@ class PenguinCalendar(private val context: Context) {
             arrayOf(
                 Events._ID, Events._SYNC_ID, Events.TITLE, Events.DESCRIPTION, Events.EVENT_LOCATION,
                 Events.DTSTART, Events.DTEND, Events.DURATION, Events.ALL_DAY, Events.RRULE,
-                Events.DIRTY, Events.DELETED, Events.SYNC_DATA1, Events.SYNC_DATA2
+                Events.DIRTY, Events.DELETED, Events.SYNC_DATA1, Events.SYNC_DATA2,
+                Events.SYNC_DATA3, Events.EVENT_COLOR
             ),
             "${Events.CALENDAR_ID} = ?",
             arrayOf(calId.toString()),
@@ -98,6 +99,8 @@ class PenguinCalendar(private val context: Context) {
                     allDay = c.getInt(8) == 1,
                     rrule = c.getString(9).orEmpty(),
                     reminders = reminders,
+                    category = c.getString(14).orEmpty(),
+                    color = if (c.isNull(15) || c.getInt(15) == 0) "" else String.format("#%06x", c.getInt(15) and 0xFFFFFF),
                     updatedDate = if (dirty || isNew) now else c.getString(12)?.toLongOrNull() ?: now,
                     id = if (isNew) UUID.randomUUID().toString() else syncId!!
                 )
@@ -152,6 +155,9 @@ class PenguinCalendar(private val context: Context) {
         put(Events._SYNC_ID, e.id)
         put(Events.SYNC_DATA1, e.updatedDate.toString())
         put(Events.SYNC_DATA2, e.reminders.joinToString(","))
+        put(Events.SYNC_DATA3, e.category)
+        val color = e.color.removePrefix("#").toLongOrNull(16)
+        if (e.color.length == 7 && color != null) put(Events.EVENT_COLOR, (0xFF000000L or color).toInt()) else put(Events.EVENT_COLOR, 0)
         put(Events.DIRTY, 0)
     }
 
