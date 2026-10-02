@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +44,9 @@ fun LazyItemScope.CalendarEventItem(
     onClick: (CalendarEvent) -> Unit
 ) {
     val context = LocalContext.current
+    val categoryName = remember(event.color) {
+        loadEventCategories(context).firstOrNull { (it.color and 0xFFFFFF) == (event.color and 0xFFFFFF) }?.name
+    }
     Card(
         modifier = modifier
             .animateItem(),
@@ -87,7 +91,14 @@ fun LazyItemScope.CalendarEventItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
+                if (categoryName != null) {
+                    Text(
+                        categoryName,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color(event.color),
+                        maxLines = 1
+                    )
+                }
             }
         }
     }

@@ -19,6 +19,10 @@ data class CalendarEvent(
     val interval: Int = 1,
     val weekDays: Set<DayOfWeek> = emptySet(),
     val instanceDay: Long? = null,
+    /** Last moment the event repeats (RRULE UNTIL), null = forever. */
+    val until: Long? = null,
+    /** Explicit colour to write when saving: null = keep as is, 0 = clear (use calendar colour). */
+    val eventColor: Int? = null,
 )
 
 enum class CalendarEventFrequency {

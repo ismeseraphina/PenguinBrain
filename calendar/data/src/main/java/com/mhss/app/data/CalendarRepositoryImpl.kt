@@ -208,6 +208,7 @@ class CalendarRepositoryImpl(
                     val recurring: Boolean = frequency != CalendarEventFrequency.NEVER
                     val interval: Int = rrule.extractInterval()
                     val weekDays: Set<DayOfWeek> = rrule.extractWeekDays(start, frequency)
+                    val until: Long? = rrule.extractUntil()
 
                     CalendarEvent(
                         id = eventId,
@@ -223,13 +224,15 @@ class CalendarRepositoryImpl(
                         interval = interval,
                         weekDays = weekDays,
                         recurring = recurring,
+                        until = until,
                     )
                 } else null
             }
         }
     }
 
-    override suspend fun addEvent(event: CalendarEvent): Long? {
+    override suspend fun addEvent(input: CalendarEvent): Long? {
+        val event = input.fixRepeatSpan()
         return withContext(ioDispatcher){
             val values = ContentValues().apply {
                 put(CalendarContract.Events.CALENDAR_ID, event.calendarId)
@@ -245,13 +248,15 @@ class CalendarRepositoryImpl(
                     put(CalendarContract.Events.DTEND, event.end)
                 }
                 put(CalendarContract.Events.EVENT_TIMEZONE, JavaTimeZone.getDefault().id)
+                event.eventColor?.let { if (it != 0) put(CalendarContract.Events.EVENT_COLOR, it) }
             }
             val uri = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
             uri?.let { ContentUris.parseId(it) }
         }
     }
 
-    override suspend fun updateEvent(event: CalendarEvent) {
+    override suspend fun updateEvent(input: CalendarEvent) {
+        val event = input.fixRepeatSpan()
         withContext(ioDispatcher){
             val values = ContentValues().apply {
                 put(CalendarContract.Events.CALENDAR_ID, event.calendarId)
@@ -271,6 +276,10 @@ class CalendarRepositoryImpl(
                 }
                 put(CalendarContract.Events.ALL_DAY, event.allDay)
                 put(CalendarContract.Events.EVENT_LOCATION, event.location)
+                event.eventColor?.let {
+                    if (it != 0) put(CalendarContract.Events.EVENT_COLOR, it)
+                    else putNull(CalendarContract.Events.EVENT_COLOR)
+                }
             }
             val updateUri: Uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.id)
             context.contentResolver.update(updateUri, values, null, null)
@@ -367,7 +376,65 @@ class CalendarRepositoryImpl(
                     .joinToString(",") { it.toRRuleByDayToken() }
                 append(";BYDAY=$recurringDays")
             }
+            until?.let { append(";UNTIL=${formatUntil(it, allDay)}") }
         }
+    }
+
+    /** RRULE UNTIL -> millis. Date-only values mean the end of that local day. */
+    private fun String.extractUntil(): Long? {
+        val v = getRuleParts()["UNTIL"] ?: return null
+        val m = Regex("^(\\d{4})(\\d{2})(\\d{2})(?:T(\\d{2})(\\d{2})(\\d{2})(Z?))?").find(v) ?: return null
+        val g = m.groupValues
+        return if (g[4].isEmpty()) {
+            java.util.Calendar.getInstance().apply {
+                clear(); set(g[1].toInt(), g[2].toInt() - 1, g[3].toInt(), 23, 59, 59)
+            }.timeInMillis
+        } else {
+            val tz = if (g[7] == "Z") JavaTimeZone.getTimeZone("UTC") else JavaTimeZone.getDefault()
+            java.util.Calendar.getInstance(tz).apply {
+                clear(); set(g[1].toInt(), g[2].toInt() - 1, g[3].toInt(), g[4].toInt(), g[5].toInt(), g[6].toInt())
+            }.timeInMillis
+        }
+    }
+
+    private fun formatUntil(until: Long, allDay: Boolean): String {
+        return if (allDay) {
+            val c = java.util.Calendar.getInstance().apply { timeInMillis = until }
+            "%04d%02d%02d".format(c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.MONTH) + 1, c.get(java.util.Calendar.DAY_OF_MONTH))
+        } else {
+            val c = java.util.Calendar.getInstance(JavaTimeZone.getTimeZone("UTC")).apply { timeInMillis = until }
+            "%04d%02d%02dT%02d%02d%02dZ".format(
+                c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.MONTH) + 1, c.get(java.util.Calendar.DAY_OF_MONTH),
+                c.get(java.util.Calendar.HOUR_OF_DAY), c.get(java.util.Calendar.MINUTE), c.get(java.util.Calendar.SECOND)
+            )
+        }
+    }
+
+    /**
+     * "Weekly, from 1 Sep to 28 Nov" entered as start/end makes every repeat last
+     * months (shows every day). Treat the end day as the repeat-until day instead.
+     */
+    private fun CalendarEvent.fixRepeatSpan(): CalendarEvent {
+        if (frequency == CalendarEventFrequency.NEVER) return this
+        val day = 86_400_000L
+        val span = end - start
+        if (if (allDay) span <= day else span < day) return this
+        val endOfLastDay = java.util.Calendar.getInstance().apply {
+            timeInMillis = if (allDay) end - 1 else end
+            set(java.util.Calendar.HOUR_OF_DAY, 23); set(java.util.Calendar.MINUTE, 59)
+            set(java.util.Calendar.SECOND, 59); set(java.util.Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val newEnd = if (allDay) start + day else {
+            val e = java.util.Calendar.getInstance().apply { timeInMillis = end }
+            val s = java.util.Calendar.getInstance().apply {
+                timeInMillis = start
+                set(java.util.Calendar.HOUR_OF_DAY, e.get(java.util.Calendar.HOUR_OF_DAY))
+                set(java.util.Calendar.MINUTE, e.get(java.util.Calendar.MINUTE))
+                set(java.util.Calendar.SECOND, e.get(java.util.Calendar.SECOND))
+            }.timeInMillis
+            if (s > start) s else start + 3_600_000L
+        }
+        return copy(end = newEnd, until = until ?: endOfLastDay)
     }
 
     private fun String.getRuleParts(): Map<String, String> {

@@ -65,6 +65,18 @@ class PenguinCalendar(private val context: Context) {
         return cr.insert(Calendars.CONTENT_URI.asAdapter(), values)?.let { ContentUris.parseId(it) }
     }
 
+    private val categories by lazy { loadCategories(context) }
+
+    private fun colorHex(c: android.database.Cursor) =
+        if (c.isNull(15) || c.getInt(15) == 0) "" else String.format("#%06x", c.getInt(15) and 0xFFFFFF)
+
+    /** The app picks a category by colour (it can't write sync columns), so map the colour back to its category. */
+    private fun categoryFor(stored: String, color: String): String {
+        if (color.isEmpty()) return ""
+        if (categories.any { it.id == stored && it.color.equals(color, true) }) return stored
+        return categories.firstOrNull { it.color.equals(color, true) }?.id ?: stored
+    }
+
     fun read(now: Long): Local? {
         val calId = calendarId() ?: return null
         val rows = ArrayList<Row>()
@@ -99,8 +111,8 @@ class PenguinCalendar(private val context: Context) {
                     allDay = c.getInt(8) == 1,
                     rrule = c.getString(9).orEmpty(),
                     reminders = reminders,
-                    category = c.getString(14).orEmpty(),
-                    color = if (c.isNull(15) || c.getInt(15) == 0) "" else String.format("#%06x", c.getInt(15) and 0xFFFFFF),
+                    category = categoryFor(c.getString(14).orEmpty(), colorHex(c)),
+                    color = colorHex(c),
                     updatedDate = if (dirty || isNew) now else c.getString(12)?.toLongOrNull() ?: now,
                     id = if (isNew) UUID.randomUUID().toString() else syncId!!
                 )
@@ -195,3 +207,23 @@ class PenguinCalendar(private val context: Context) {
         }
     }
 }
+
+private const val CATEGORY_PREFS = "penguin_categories"
+
+/** Categories from the website, kept on the phone so the event screen can offer them. */
+fun saveCategories(context: android.content.Context, list: List<SyncCategory>) {
+    val arr = org.json.JSONArray()
+    list.sortedBy { it.name.lowercase() }.forEach {
+        arr.put(org.json.JSONObject().put("id", it.id).put("name", it.name).put("color", it.color))
+    }
+    context.getSharedPreferences(CATEGORY_PREFS, android.content.Context.MODE_PRIVATE).edit().putString("json", arr.toString()).apply()
+}
+
+fun loadCategories(context: android.content.Context): List<SyncCategory> = try {
+    val arr = org.json.JSONArray(context.getSharedPreferences(CATEGORY_PREFS, android.content.Context.MODE_PRIVATE).getString("json", "[]"))
+    (0 until arr.length()).map { i ->
+        val o = arr.getJSONObject(i)
+        SyncCategory(name = o.optString("name"), color = o.optString("color"), updatedDate = 0, id = o.optString("id"))
+    }
+} catch (_: Exception) { emptyList() }
+

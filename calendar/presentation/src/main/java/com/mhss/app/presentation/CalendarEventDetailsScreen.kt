@@ -135,6 +135,16 @@ fun CalendarEventDetailsScreen(
     }
 
     var allDay by rememberSaveable(event) { mutableStateOf(event?.allDay ?: false) }
+    var until by rememberSaveable(event) { mutableStateOf(event?.until) }
+    val appContext = LocalContext.current
+    val categories = remember { loadEventCategories(appContext) }
+    var categoryId by rememberSaveable(event, categories) {
+        mutableStateOf(
+            event?.color?.takeIf { it != 0 }?.let { c -> categories.firstOrNull { (it.color and 0xFFFFFF) == (c and 0xFFFFFF) }?.id } ?: ""
+        )
+    }
+    var categoryTouched by rememberSaveable(event) { mutableStateOf(false) }
+    val isPenguinCalendar = calendar.name == "Penguin Brain"
     var location by rememberSaveable(event) { mutableStateOf(event?.location ?: "") }
     if (writeCalendarPermissionState.isGranted) {
         LaunchedEffect(state) {
@@ -175,7 +185,11 @@ fun CalendarEventDetailsScreen(
                             weekDays.ifEmpty { setOf(startDate.toDayOfWeek()) }
                         } else {
                             emptySet()
-                        }
+                        },
+                        until = if (frequency != CalendarEventFrequency.NEVER) until else null,
+                        eventColor = if (isPenguinCalendar && (categoryTouched || event == null) && categories.isNotEmpty()) {
+                            categories.firstOrNull { it.id == categoryId }?.color ?: 0
+                        } else null
                     )
                     if (event != null) {
                         viewModel.onEvent(CalendarEventDetailsEvent.EditEvent(newEvent))
@@ -230,6 +244,15 @@ fun CalendarEventDetailsScreen(
                     weekDays = weekDays,
                     onWeekDaysSelected = { weekDays = it }
                 )
+                if (frequency != CalendarEventFrequency.NEVER) {
+                    RepeatUntilSection(until = until, startMillis = startDate, onUntilChange = { until = it })
+                }
+                if (isPenguinCalendar) {
+                    CategorySection(categories = categories, selectedId = categoryId) {
+                        categoryId = it?.id ?: ""
+                        categoryTouched = true
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = location,

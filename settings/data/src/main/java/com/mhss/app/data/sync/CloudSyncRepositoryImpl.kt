@@ -284,6 +284,7 @@ class CloudSyncRepositoryImpl(
         if (localCal != null) newIds[SyncTypes.EVENTS] = mergedEvents.map { it.id }
         else state.ids[SyncTypes.EVENTS]?.let { newIds[SyncTypes.EVENTS] = it }
         writeState(SyncState(account = account, ids = newIds))
+        try { saveCategories(context, remote.categories) } catch (_: Exception) { }
         try { EventReminders.reschedule(context) } catch (_: Exception) { }
         try { com.mhss.app.data.clock.PenguinClock.scheduleNotifications(context, database) } catch (_: Exception) { }
 
